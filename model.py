@@ -33,15 +33,29 @@ train = imgdataset("train_image", "train.csv", transform=transforms)
 
 
 class CNN(nn.Module):
-    def __init__(self, train_CNN=False, num_classes=1):
-        super(CNN, self).__init__()
-        self.train_CNN = train_CNN
-        self.inception = models.inception_v3(pretrained=True, aux_logits=False)
-        self.inception.fc = nn.Linear(self.inception.fc.in_features, num_classes)
-        self.relu = nn.ReLU()
-        self.dropout = nn.Dropout(0.5)
-        self.sigmoid = nn.Sigmoid()
+    def __init__(self):
+        super(CNN_Model, self).__init__()
+        # Convolution 1 , input_shape=(3,224,224)
+        self.cnn1 = nn.Conv2d(3, 16, kernel_size=5, stride=1)
+        self.relu1 = nn.ReLU(inplace=True)
+        # Max pool 1
+        self.maxpool1 = nn.MaxPool2d(kernel_size=2)
+        # Convolution 2
+        self.cnn2 = nn.Conv2d(16, 8, kernel_size=11, stride=1)
+        self.relu2 = nn.ReLU(inplace=True)
+        # Max pool 2
+        self.maxpool2 = nn.MaxPool2d(kernel_size=2)
+        # Fully connected 1 ,#input_shape=(8*50*50)
+        self.fc = nn.Linear(8 * 50 * 50, 2)
+        # 列出forward的路徑，將init列出的層代入
 
-    def forward(self, images):
-        features = self.inception(images)
-        return self.sigmoid(self.dropout(self.relu(features))).squeeze(1)
+    def forward(self, x):
+        out = self.cnn1(x)
+        out = self.relu1(out)
+        out = self.maxpool1(out)
+        out = self.cnn2(out)
+        out = self.relu2(out)
+        out = self.maxpool2(out)
+        out = out.view(out.size(0), -1)
+        out = self.fc(out)
+        return out
