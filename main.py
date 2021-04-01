@@ -4,6 +4,7 @@ import cv2
 import glob2 as glob
 import xlwt
 import os
+import pandas as pd
 
 def Aruco_creation():
    dictionary = cv2.aruco.Dictionary_get(cv2.aruco.DICT_6X6_250)
@@ -75,7 +76,9 @@ def detection():
    worksheet = workbook.add_sheet('My Worksheet')
    style = xlwt.XFStyle()  # 初始化樣式
    font = xlwt.Font()  # 為樣式建立字型
-   path = './train_image/'
+   # path = './train_image/'
+   path = './val_image/'
+
    count = 1
    while (True):
       ret, frame = cap.read()
@@ -112,16 +115,31 @@ def detection():
          cv2.imshow("diamondLeft", im_with_diamond)  # display
 
          if cv2.waitKey(1) & 0xFF == ord('q'):  # press 'q' to quit
-            workbook.save('train_data.xls')
+            # workbook.save('train_data.xls')
+            workbook.save('val_data.xls')
+
             break
       else:
-         workbook.save('train_data.xls')
+         workbook.save('val_data.xls')
          break
    cap.release()  # When everything done, release the capture
    cv2.destroyAllWindows()
+
+def toCSV():
+   read_file = pd.read_excel(r'train_data.xls')
+   read_file.to_csv(r'train_data.csv', index=None, header=True)
+   read_file = pd.read_excel(r'val_data.xls')
+   read_file.to_csv(r'val_data.csv', index=None, header=True)
+
 
 if __name__ == '__main__':
    # Aruco_creation()
    # static_detect()
    # calibration()
-   detection()
+   # detection()
+   # toCSV()
+   import torch
+
+   print(torch.__version__)
+   device = "cuda" if torch.cuda.is_available() else "cpu"
+   print(device)
