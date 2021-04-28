@@ -82,6 +82,7 @@ def showResult():
     while(True):
         ret, frame = cap.read()
 
+        error = [0, 0]
         if ret == True:
             frame_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             # PIL_frame = Image.fromarray(frame_gray)
@@ -111,10 +112,13 @@ def showResult():
                     p_tvec = pt_array[0]
                     p_tvec = p_tvec.reshape((1, 1, -1))
 
+                    error[0] = ((p_rvec[0][0] - rvec[0][0]) ** 2).mean()
+                    error[1] = ((p_tvec[0][0] - tvec[0][0]) ** 2).mean()
 
 
                     im_with_diamond = aruco.drawAxis(im_with_diamond, camera_matrix, dist_coeffs, rvec, tvec, 1)
                     im_with_diamond = aruco.drawAxis(im_with_diamond, camera_matrix, dist_coeffs, p_rvec, p_tvec, 1)
+                    cv2.putText(im_with_diamond, str(error), (30, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 255), 1, cv2.LINE_AA)
 
             else:
                 im_with_diamond = frame
