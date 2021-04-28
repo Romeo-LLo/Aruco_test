@@ -73,13 +73,15 @@ def detection():
    arucoParams = aruco.DetectorParameters_create()
 
    workbook = xlwt.Workbook(encoding='ascii')
-   worksheet = workbook.add_sheet('My Worksheet')
+   tr_worksheet = workbook.add_sheet('Train Worksheet')
+   tt_worksheet = workbook.add_sheet('Test Worksheet')
+
    style = xlwt.XFStyle()  # 初始化樣式
    font = xlwt.Font()  # 為樣式建立字型
-   # path = './train_image/'
-   path = './val_image/'
+   tr_path = './train_image/'
+   tt_path = './test_image/'
 
-   count = 1
+   count = 0
    while (True):
       ret, frame = cap.read()
       if ret == True:
@@ -95,20 +97,39 @@ def detection():
                im_with_diamond = aruco.drawDetectedDiamonds(frame, diamondCorners, diamondIds, (0, 255, 0))
                rvec, tvec, _ = aruco.estimatePoseSingleMarkers(diamondCorners, squareLength, camera_matrix, dist_coeffs)  # posture estimation from a diamond
 
+               if (count % 2) == 0:
+                  if count == 0:
+                     id = 0
+                  else:
+                     id = int(count/2)
+                  print("Train Recorded no.", id)
+                  tr_worksheet.write(id, 0, id)
+                  tr_worksheet.write(id, 1, rvec[0][0][0])
+                  tr_worksheet.write(id, 2, rvec[0][0][1])
+                  tr_worksheet.write(id, 3, rvec[0][0][2])
+                  tr_worksheet.write(id, 4, tvec[0][0][0])
+                  tr_worksheet.write(id, 5, tvec[0][0][1])
+                  tr_worksheet.write(id, 6, tvec[0][0][2])
+                  # cv2.imwrite(os.path.join(tr_path, '{}.jpg'.format(id)), frame_gray)
+                  cv2.imwrite(os.path.join(tr_path, '{}.jpg'.format(id)), frame)
 
-               if ((count % 3) == 0):
-                  id = int(count/3)
-                  print("Recorded no.", id)
-                  worksheet.write(id, 0, id+1)
-                  worksheet.write(id, 1, rvec[0][0][0])
-                  worksheet.write(id, 2, rvec[0][0][1])
-                  worksheet.write(id, 3, rvec[0][0][2])
-                  worksheet.write(id, 4, tvec[0][0][0])
-                  worksheet.write(id, 5, tvec[0][0][1])
-                  worksheet.write(id, 6, tvec[0][0][2])
-                  cv2.imwrite(os.path.join(path, '{}.jpg'.format(id)), frame_gray)
+
+               else:
+                  if count == 1:
+                     id = 0
+                  else:
+                     id = int(count / 2)
+                  print("Test Recorded no.", id)
+                  tt_worksheet.write(id, 0, id)
+                  tt_worksheet.write(id, 1, rvec[0][0][0])
+                  tt_worksheet.write(id, 2, rvec[0][0][1])
+                  tt_worksheet.write(id, 3, rvec[0][0][2])
+                  tt_worksheet.write(id, 4, tvec[0][0][0])
+                  tt_worksheet.write(id, 5, tvec[0][0][1])
+                  tt_worksheet.write(id, 6, tvec[0][0][2])
+                  cv2.imwrite(os.path.join(tt_path, '{}.jpg'.format(id)), frame)
                count += 1
-               im_with_diamond = aruco.drawAxis(im_with_diamond, camera_matrix, dist_coeffs, rvec, tvec, 1)  # axis length 100 can be changed according to your requirement
+               im_with_diamond = aruco.drawAxis(im_with_diamond, camera_matrix, dist_coeffs, rvec, tvec, 1)
          else:
             im_with_diamond = frame
 
@@ -116,20 +137,25 @@ def detection():
 
          if cv2.waitKey(1) & 0xFF == ord('q'):  # press 'q' to quit
             # workbook.save('train_data.xls')
-            workbook.save('val_data.xls')
+            workbook.save('data.xls')
 
             break
       else:
-         workbook.save('val_data.xls')
+         workbook.save('data.xls')
          break
    cap.release()  # When everything done, release the capture
    cv2.destroyAllWindows()
 
 def toCSV():
-   read_file = pd.read_excel(r'train_data.xls')
-   read_file.to_csv(r'train_data.csv', index=None, header=True)
-   read_file = pd.read_excel(r'val_data.xls')
-   read_file.to_csv(r'val_data.csv', index=None, header=True)
+   # read_file = pd.read_excel(r'train_data.xls')
+   # read_file.to_csv(r'train_data.csv', index=None, header=True)
+   # read_file = pd.read_excel(r'test_data.xls')
+   # read_file.to_csv(r'test_data.csv', index=None, header=True)
+   train_file = pd.read_excel(r'data.xls', sheet_name='Train Worksheet')
+   test_file = pd.read_excel(r'data.xls', sheet_name='Test Worksheet')
+
+   train_file.to_csv(r'train_data.csv', index=None, header=True)
+   test_file.to_csv(r'test_data.csv', index=None, header=True)
 
 
 if __name__ == '__main__':
@@ -137,9 +163,5 @@ if __name__ == '__main__':
    # static_detect()
    # calibration()
    # detection()
-   # toCSV()
-   import torch
-
-   print(torch.__version__)
-   device = "cuda" if torch.cuda.is_available() else "cpu"
-   print(device)
+   toCSV()
+   # pass
