@@ -297,7 +297,7 @@ if __name__ == '__main__':
     test_tansforms = transforms.Compose([transforms.Resize((128, 128)),
                                           transforms.ToTensor()])
 
-    dataset = imgdataset("./train_image", "train_data.csv", model=config['model'], transform=train_transforms)
+    dataset = imgdataset("./train_image", "file/train_data.csv", model=config['model'], transform=train_transforms)
     val_len = int(0.2 * len(dataset))
     train_len = len(dataset) - val_len
     dataset_train, dataset_valid = random_split(dataset, (train_len, val_len))

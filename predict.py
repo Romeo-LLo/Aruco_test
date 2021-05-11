@@ -9,51 +9,7 @@ import numpy as np
 from torch.autograd import Variable
 from model import CNN_Model1, CNN_Model2
 
-# class CNN_Model(nn.Module):
-#
-#     def __init__(self):
-#         super(CNN_Model, self).__init__()
-#         self.cnn_layers = nn.Sequential(
-#             nn.Conv2d(1, 64, 3, 1, 1),
-#             nn.BatchNorm2d(64),
-#             nn.ReLU(),
-#             nn.MaxPool2d(2, 2, 0),
-#
-#             nn.Conv2d(64, 128, 3, 1, 1),
-#             nn.BatchNorm2d(128),
-#             nn.ReLU(),
-#             nn.MaxPool2d(2, 2, 0),
-#             nn.Dropout(0.2),
-#
-#             nn.Conv2d(128, 256, 3, 1, 1),
-#             nn.BatchNorm2d(256),
-#             nn.ReLU(),
-#             nn.MaxPool2d(4, 4, 0),
-#
-#         )
-#         self.fc_layers = nn.Sequential(
-#             nn.Linear(256 * 8 * 8, 256),
-#             nn.ReLU(),
-#             nn.Linear(256, 256),
-#             nn.Dropout(0.2),
-#             nn.ReLU(),
-#             nn.Linear(256, 3),
-#
-#         )
-#
-#     def forward(self, x):
-#         # input (x): [batch_size, 3, 128, 128]
-#         # output: [batch_size, 11]
-#
-#         # Extract features by convolutional layers.
-#         x = self.cnn_layers(x)
-#
-#         # The extracted feature map must be flatten before going to fully-connected layers.
-#         x = x.flatten(1)
-#
-#         # The features are transformed by fully-connected layers to obtain the final logits.
-#         x = self.fc_layers(x)
-#         return x
+
 from PIL import Image
 
 def showResult():
@@ -69,12 +25,12 @@ def showResult():
 
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    model_path_r = './model_r.ckpt'
+    model_path_r = 'file/model_r.ckpt'
     model1 = CNN_Model1(model=1).to(device)
     model1.load_state_dict(torch.load(model_path_r))
     model1.eval()
 
-    model_path_t = './model_t.ckpt'
+    model_path_t = 'file/model_t.ckpt'
     model2 = CNN_Model2(model=2).to(device)
     model2.load_state_dict(torch.load(model_path_t))
     model2.eval()
