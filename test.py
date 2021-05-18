@@ -13,9 +13,9 @@ def calibration():
    objp = objp * 24.2  # 18.1 mm
 
    objpoints = []  # 3d point in real world space
-   imgpoints = []  # 2d points in image plane.
+   imgpoints = []  # 2d points in calib_image plane.
 
-   images = glob.glob('image/*.jpg')
+   images = glob.glob('calib_image/*.jpg')
    for fname in images:
       img = cv2.imread(fname)
       gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -44,6 +44,7 @@ def calibration():
 def SquareFinder(img):
     limitCosine = 0.6
     minArea = 100
+    maxArea = 1000
     maxError = 0.025
 
 
@@ -54,7 +55,7 @@ def SquareFinder(img):
         arclen = cv2.arcLength(contours[i], True)
         approx = cv2.approxPolyDP(contours[i], arclen*maxError, True)
         # print(len(approx))
-        if len(approx) == 4 and abs(cv2.contourArea(approx)) > minArea and cv2.isContourConvex(approx):
+        if len(approx) == 4 and abs(cv2.contourArea(approx)) > minArea and abs(cv2.contourArea(approx)) < maxArea and cv2.isContourConvex(approx):
             approx = np.squeeze(approx, axis=1)
             maxCos = 0
             for j in range(2, 5):
@@ -82,13 +83,17 @@ def deeperAruco():
         if ret == True:
 
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-            img = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 7, 2)
+            img = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 7, 0)
 
             approx = SquareFinder(img)
-            pts = approx.reshape((-1, 1, 2))
-            cv2.polylines(frame, [pts], True, (0, 255, 255))
+            if approx is not None:
+                pts = approx.reshape((-1, 1, 2))
+                cv2.polylines(frame, [pts], True, (0, 255, 255))
+                cv2.imshow("img1", img)  # displayd
 
-            cv2.imshow("img", frame)  # display
+                cv2.imshow("img2", frame)  # displayd
+            else:
+                continue
 
             if cv2.waitKey(1) & 0xFF == ord('q'):  # press 'q' to quit
                 break

@@ -36,9 +36,9 @@ def calibration():
    objp = objp * 24.2  # 18.1 mm
 
    objpoints = []  # 3d point in real world space
-   imgpoints = []  # 2d points in image plane.
+   imgpoints = []  # 2d points in calib_image plane.
 
-   images = glob.glob('image/*.jpg')
+   images = glob.glob('calib_image/*.jpg')
    for fname in images:
       img = cv2.imread(fname)
       gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
